@@ -1,0 +1,13 @@
+[
+  {
+    "id": "my-api",
+    "label": "My OpenAI-compatible API",
+    "base_url": "https://example.com/v1",
+    "key_env": "MY_API_KEY",
+    "models": ["my-chat-model", "my-fast-model"],
+    "image_models": ["my-image-model"],
+    "docs_url": "https://example.com/dashboard",
+    "tagline": "A custom provider added through providers.json",
+    "headers": {}
+  }
+]

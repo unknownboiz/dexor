@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#08080b">
+  <meta name="description" content="DexBot — a fast, multi-provider AI chat app with streaming responses, image generation, and local chat history.">
+  <title>DexBot — multi-model AI chat</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/vendor/highlight-dark.min.css">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <div class="app">
+    <aside id="sidebar" class="sidebar" aria-label="Chat history">
+      <div class="sidebar-head">
+        <a class="brand" href="/" aria-label="DexBot home">
+          <span class="brand-mark">
+            <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2.5l2.7 9.3 9.3 2.7-9.3 2.7L16 26.5l-2.7-9.3-9.3-2.7 9.3-2.7L16 2.5z"/></svg>
+          </span>
+          <span class="brand-text">DexBot</span>
+        </a>
+        <button id="closeSidebarBtn" class="icon-btn mobile-only" type="button" aria-label="Close sidebar">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+
+      <button id="newChatBtn" class="new-chat" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        <span>New chat</span>
+        <kbd>⌘K</kbd>
+      </button>
+
+      <div class="sidebar-label">Recent chats</div>
+      <nav id="conversationList" class="conversation-list"></nav>
+
+      <div class="sidebar-footer">
+        <button id="settingsBtnSidebar" class="footer-btn" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.9.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.9l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.9.3H10a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.9-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.9V10a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>
+          <span>Settings</span>
+        </button>
+        <span id="versionLabel" class="version">v1.0</span>
+      </div>
+    </aside>
+
+    <div id="sidebarScrim" class="scrim" aria-hidden="true"></div>
+
+    <main class="main">
+      <header class="topbar">
+        <button id="openSidebarBtn" class="icon-btn mobile-only" type="button" aria-label="Open sidebar">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+
+        <div class="model-bar">
+          <label class="sr-only" for="providerSelect">Provider</label>
+          <div class="select-wrap">
+            <select id="providerSelect" class="select provider-select"></select>
+            <svg class="select-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg>
+          </div>
+          <span class="model-divider" aria-hidden="true"></span>
+          <label class="sr-only" for="modelSelect">Model</label>
+          <div class="select-wrap model-select-wrap">
+            <select id="modelSelect" class="select model-select"></select>
+            <svg class="select-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg>
+          </div>
+          <span id="modelBadge" class="badge hidden">Image</span>
+        </div>
+
+        <div class="topbar-right">
+          <span id="connectionStatus" class="status" title="Provider status">
+            <span class="status-dot"></span>
+            <span id="statusText">Connecting</span>
+          </span>
+          <button id="settingsBtn" class="icon-btn" type="button" aria-label="Settings">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.9.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.9l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.9.3H10a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.9-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.9V10a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <section id="chatScroll" class="chat-scroll">
+        <div id="welcome" class="welcome">
+          <div class="welcome-glow" aria-hidden="true"></div>
+          <div class="welcome-logo" aria-hidden="true">
+            <svg viewBox="0 0 32 32"><path d="M16 2.5l2.7 9.3 9.3 2.7-9.3 2.7L16 26.5l-2.7-9.3-9.3-2.7 9.3-2.7L16 2.5z"/></svg>
+          </div>
+          <h1>What's on your mind?</h1>
+          <p class="welcome-sub">Chat with Grok, GPT, Claude, Gemini and more — in one place.</p>
+
+          <div class="suggestions">
+            <button class="suggestion" type="button" data-prompt="Explain black holes like I'm five.">
+              <span class="suggestion-icon">✦</span>
+              <span>Explain black holes like I'm five</span>
+            </button>
+            <button class="suggestion" type="button" data-prompt="Write a Python script to organize my downloads folder by file type.">
+              <span class="suggestion-icon">&lt;/&gt;</span>
+              <span>Write a script to organize downloads</span>
+            </button>
+            <button class="suggestion" type="button" data-prompt="Draft a short, bold launch tweet for a new AI chat app.">
+              <span class="suggestion-icon">✎</span>
+              <span>Draft a launch tweet for my app</span>
+            </button>
+            <button class="suggestion" type="button" data-prompt="A neon cyberpunk city at night in the rain, cinematic lighting, ultra detailed" data-image="true">
+              <span class="suggestion-icon">▧</span>
+              <span>Create a cyberpunk city image</span>
+            </button>
+          </div>
+
+          <p id="welcomeNote" class="welcome-note"></p>
+        </div>
+
+        <div id="messages" class="messages" role="log" aria-live="polite" aria-label="Conversation"></div>
+      </section>
+
+      <button id="scrollBottomBtn" class="scroll-bottom hidden" type="button" aria-label="Scroll to latest message">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
+      </button>
+
+      <footer class="composer-area">
+        <form id="composer" class="composer" autocomplete="off">
+          <div class="composer-box">
+            <textarea id="promptInput" rows="1" placeholder="Ask anything..." aria-label="Message"></textarea>
+            <div class="composer-tools">
+              <div class="composer-left">
+                <button id="imageModeBtn" class="tool-btn" type="button" aria-pressed="false" title="Generate an image">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="M21 16l-5-5L5 20"/></svg>
+                  <span>Image</span>
+                </button>
+              </div>
+              <div class="composer-right">
+                <span id="composerHint" class="hint">Enter to send</span>
+                <button id="sendBtn" class="send-btn" type="submit" aria-label="Send message">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
+                </button>
+                <button id="stopBtn" class="send-btn stop hidden" type="button" aria-label="Stop generating">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          <p class="disclaimer">DexBot can make mistakes. Check important info. API keys stay on the server.</p>
+        </form>
+      </footer>
+    </main>
+  </div>
+
+  <dialog id="settingsDialog" class="settings-dialog">
+    <div class="dialog-head">
+      <div>
+        <h2>Settings</h2>
+        <p>Make DexBot yours.</p>
+      </div>
+      <button id="closeSettingsBtn" class="icon-btn" type="button" aria-label="Close settings">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+
+    <div class="dialog-body">
+      <section class="settings-section">
+        <h3>Appearance</h3>
+        <div class="setting-row">
+          <div>
+            <label for="themeSelect">Theme</label>
+            <p class="setting-desc">Switch between the dark void and a softer light mode.</p>
+          </div>
+          <div class="select-wrap">
+            <select id="themeSelect" class="select">
+              <option value="dark">Dark</option>
+              <option value="light">Light</option>
+              <option value="system">System</option>
+            </select>
+            <svg class="select-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg>
+          </div>
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <h3>Chat defaults</h3>
+        <div class="setting-block">
+          <label for="systemPrompt">System prompt</label>
+          <p class="setting-desc">Applied to every new message. Leave blank for the model's default personality.</p>
+          <textarea id="systemPrompt" class="setting-textarea" rows="3" maxlength="20000" placeholder="You are a concise, helpful assistant…"></textarea>
+        </div>
+        <div class="setting-block">
+          <div class="setting-inline">
+            <label for="temperature">Temperature</label>
+            <span id="temperatureValue" class="value-pill">0.7</span>
+          </div>
+          <p class="setting-desc">Lower is more focused, higher is more creative.</p>
+          <input id="temperature" class="range" type="range" min="0" max="2" step="0.1" value="0.7">
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <h3>Providers</h3>
+        <p class="setting-desc">Add a key to <code>.env</code> and restart the server to connect a provider. Keys never reach the browser.</p>
+        <div id="providerList" class="provider-list"></div>
+      </section>
+
+      <section class="settings-section">
+        <h3>Your data</h3>
+        <div class="data-actions">
+          <button id="exportBtn" class="secondary-btn" type="button">Export chats</button>
+          <button id="clearAllBtn" class="danger-btn" type="button">Clear all chats</button>
+        </div>
+        <p class="setting-desc">Conversations live in this browser's local storage. Export them before clearing your browser data.</p>
+      </section>
+    </div>
+
+    <div class="dialog-foot">
+      <span>DexBot v1.0 · <span id="settingsProviderCount">0</span> providers detected</span>
+      <a href="https://fastapi.tiangolo.com" target="_blank" rel="noreferrer">FastAPI + vanilla JS</a>
+    </div>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="/static/vendor/marked.min.js"></script>
+  <script src="/static/vendor/purify.min.js"></script>
+  <script src="/static/vendor/highlight.min.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>
