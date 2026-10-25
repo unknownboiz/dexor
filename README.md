@@ -21,6 +21,7 @@ A Grok-style multi-model AI chat app. One clean interface for xAI, OpenAI, Anthr
 ## Quick start
 
 ```bash
+git clone git@github.com:unknownboiz/dexor.git dexbot
 cd dexbot
 python -m pip install -r requirements.txt
 cp .env.example .env
@@ -34,14 +35,9 @@ No key yet? Just start the app. The **Demo** provider is selected automatically 
 
 ### Google Colab
 
-```python
-%cd /content/dexbot
-!pip install -q -r requirements.txt
-!nohup python run.py > /tmp/dexbot.log 2>&1 &
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/unknownboiz/dexor/blob/main/DexBot_Colab.ipynb)
 
-from google.colab import output
-output.serve_kernel_port_as_iframe(8000, height="900")
-```
+The notebook downloads the project, installs dependencies, starts the server, and embeds DexBot in the notebook. Because the repository is private, add a fine-grained GitHub token with **Contents: Read-only** access as a Colab secret named `GITHUB_TOKEN` — or make the repository public and skip the token.
 
 ## Providers
 
